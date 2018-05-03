@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-This is a NodeServer template for Polyglot v2 written in Python2/3
+This is a NodeServer for Onkyo Receivers of the TX-NR varieties
 by Einstein.42 (James Milne) milne.james@gmail.com
 """
 import polyinterface
