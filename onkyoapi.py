@@ -10,7 +10,7 @@ _PORT = 60128
 
 
 
-class Onkyo(object):
+class OnkyoReceiver(object):
     strZonesMute = ["AMT", "ZMT", "MT3"]
     strZonesLevel = ["MVL", "ZVL", "VL3"]
     strZonesPower = ["PWR", "ZPW", "PW3"]
@@ -47,23 +47,23 @@ class Onkyo(object):
 
     
     def Mute(self, zoneId):
-        self.CreateAndSend(Onkyo.strZonesMute, zoneId, "01")
+        self.CreateAndSend(OnkyoReceiver.strZonesMute, zoneId, "01")
         
     def UnMute(self, zoneId):
-        self.CreateAndSend(Onkyo.strZonesMute, zoneId, "00")
+        self.CreateAndSend(OnkyoReceiver.strZonesMute, zoneId, "00")
 
     def Up(self, zoneId):
-        self.CreateAndSend(Onkyo.strZonesLevel, zoneId, "UP")
+        self.CreateAndSend(OnkyoReceiver.strZonesLevel, zoneId, "UP")
 
     def Down(self, zoneId):
-        self.CreateAndSend(Onkyo.strZonesLevel, zoneId, "DOWN")
+        self.CreateAndSend(OnkyoReceiver.strZonesLevel, zoneId, "DOWN")
     
     def Set(self, zoneId, volume):
         strVolume = "%02X" % volume
-        self.CreateAndSend(Onkyo.strZonesLevel, zoneId, strVolume)
+        self.CreateAndSend(OnkyoReceiver.strZonesLevel, zoneId, strVolume)
 
     def Get(self, zoneId):
-        returndata = self.CreateAndSend(Onkyo.strZonesLevel, zoneId, "QSTN", True)
+        returndata = self.CreateAndSend(OnkyoReceiver.strZonesLevel, zoneId, "QSTN", True)
         temp = returndata[21:23]
         strtemp = temp.decode("utf-8")
         x = int(strtemp, 16)
@@ -71,12 +71,9 @@ class Onkyo(object):
         return x
 
     def On(self, zoneId):
-        self.CreateAndSend(Onkyo.strZonesPower, zoneId, "01")
+        self.CreateAndSend(OnkyoReceiver.strZonesPower, zoneId, "01")
 
     def Off(self, zoneId):
-        self.CreateAndSend(Onkyo.strZonesPower, zoneId, "00")
+        self.CreateAndSend(OnkyoReceiver.strZonesPower, zoneId, "00")
 
-if __name__ == "__main__":
-        OnkyoSession = Onkyo(_IP, _PORT)
-        y = OnkyoSession.Get(2)
 

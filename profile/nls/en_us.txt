@@ -1,10 +1,20 @@
 # controller
-ND-controller-NAME = My NodeServer Controller
+ND-controller-NAME = Onkyo Controller
+ND-controller-ICON = GenericCtl
 CMD-ctl-DISCOVER-NAME = Re-Discover
 CMD-ctl-UPDATE_PROFILE-NAME = Update Profile
 CMD-ctl-REMOVE_NOTICES_ALL-NAME = Remove Notices
 ST-ctl-ST-NAME = NodeServer Online
 
-# mynodetype
-ND-mynodetype-NAME = My Node
-ST-mynode-ST-NAME = Power
+# Onkyo Zone
+ND-onkyozone-NAME = Onkyo Zone
+ND-onkyozone-NAME = GenericRsp
+ST-ozone-ST-NAME = Volume
+
+CMD-ozone-VOLUME-NAME = Volume
+CMD-ozone-MUTE-NAME = Mute
+CMD-ozone-UNMUTE-NAME = UnMute
+CMD-ozone-POWERON-NAME = Power On
+CMD-ozone-POWEROFF-NAME = Power Off
+
+

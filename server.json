@@ -1,21 +1,21 @@
 {
-    "name": "PythonTemplate",
-    "docs": "https://github.com/Einstein42/udi-poly-template-python",
+    "name": "Onkyo",
+    "docs": "https://github.com/steveng57/Onkyo-Polyglotv2",
     "type": "python",
-    "executable": "name-poly.py",
+    "executable": "Onkyo-poly.py",
     "install": "install.sh",
-    "description": "My Node Server",
-    "notice": "Your disclaimer here",
-    "shortPoll": "5",
+    "description": "Onkyo Node Server",
+    "notice": "Big disclaimer",
+    "shortPoll": "10",
     "longPoll": "60",
     "credits": [
         {
-            "title": "mypoly: a NodeServer for My Integration",
-            "author": "James Milne (Einstein.42)",
-            "version": "2.0.3",
-            "date": "November 8, 2017",
-            "source": "https://github.com/Einstein42/udi-poly-template-python",
-            "license": "https://raw.githubusercontent.com/Einstein42/udi-poly-template-python/master/LICENSE"
+            "title": "Onkyo: a NodeServer for Onkyo Receiver Integration",
+            "author": "Steven Goulet",
+            "version": "0.0.5",
+            "date": "May 3, 2018",
+            "source": "https://github.com/steveng57/Onkyo-Polyglotv2",
+            "license": "https://raw.githubusercontent.com/steveng57/Onkyo-Polyglotv2/master/LICENSE"
         }
     ]
 }

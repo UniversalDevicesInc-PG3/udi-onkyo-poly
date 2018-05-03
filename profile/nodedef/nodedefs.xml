@@ -16,16 +16,22 @@
         </cmds>
     </nodeDef>
 	<!-- mynodetype -->
-    <nodeDef id="mynodetype" nls="mynode">
+    <nodeDef id="onkyozone" nls="ozone">
         <editors />
         <sts>
-            <st id="ST" editor="bool" />
+            <st id="ST" editor="ovolume" />
         </sts>
         <cmds>
             <sends />
             <accepts>
-                <cmd id="DON" />
-                <cmd id="DOF" />
+                <cmd id="VOLUME" />
+                        <p id="" editor="ovolume" init="ST" />
+                <cmd id="MUTE" />
+                <cmd id="UNMUTE" />
+                <cmd id="POWERON" />
+                <cmd id="POWEROFF" />
+                
+                
             </accepts>
         </cmds>
     </nodeDef>

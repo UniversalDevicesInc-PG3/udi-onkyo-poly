@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """
 This is a NodeServer for Onkyo Receivers of the TX-NR varieties
-by Einstein.42 (James Milne) milne.james@gmail.com
+by steveng57 (Steven Goulet: steven.goulet@live.com)
+
 """
-import polyinterface
+
 import sys
 import time
+import json
+from onkyoapi import OnkyoReceiver
+import polyinterface
 """
 Import the polyglot interface module. This is in pypy so you can just install it
 normally. Replace pip with pip3 if you are using python3.
@@ -22,6 +26,15 @@ modules globally. Use the --user flag, not sudo.
 """
 
 LOGGER = polyinterface.LOGGER
+
+with open('server.json') as data:
+    SERVERDATA = json.load(data)
+    data.close()
+try:
+    VERSION = SERVERDATA['credits'][0]['version']
+except (KeyError, ValueError):
+    LOGGER.info('Version not found in server.json.')
+    VERSION = '0.0.0'
 """
 polyinterface has a LOGGER that is created by default and logs to:
 logs/debug.log
@@ -63,6 +76,8 @@ class Controller(polyinterface.Controller):
         to override the __init__ method, but if you do, you MUST call super.
         """
         super(Controller, self).__init__(polyglot)
+        self.name = 'Onkyo Controller'
+        self.OnkyoReceiver = OnkyoReceiver("192.168.1.134", 60128)
 
     def start(self):
         """
@@ -73,7 +88,8 @@ class Controller(polyinterface.Controller):
         this is where you should start. No need to Super this method, the parent
         version does nothing.
         """
-        LOGGER.info('Started MyNodeServer')
+        LOGGER.info('Starting Onkyo Polyglot v2 NodeServer version {}, polyinterface: {}'.format(VERSION, polyinterface.__version__))
+        
         self.check_params()
         self.discover()
 
@@ -111,7 +127,9 @@ class Controller(polyinterface.Controller):
         Do discovery here. Does not have to be called discovery. Called from example
         controller start method and from DISCOVER command recieved from ISY as an exmaple.
         """
-        self.addNode(MyNode(self, self.address, 'myaddress', 'My Node Name'))
+        self.addNode(ZoneNode(self, self.address, 'Main', 'Main', 1))        
+        self.addNode(ZoneNode(self, self.address, 'Zone 2', 'Zone 2', 2))        
+        self.addNode(ZoneNode(self, self.address, 'Zone 3', 'Zone 3', 2))
 
     def delete(self):
         """
@@ -182,7 +200,7 @@ class Controller(polyinterface.Controller):
 
 
 
-class MyNode(polyinterface.Node):
+class ZoneNode(polyinterface.Node):
     """
     This is the class that all the Nodes will be represented by. You will add this to
     Polyglot/ISY with the controller.addNode method.
@@ -201,7 +219,7 @@ class MyNode(polyinterface.Node):
     reportDrivers(): Forces a full update of all drivers to Polyglot/ISY.
     query(): Called when ISY sends a query request to Polyglot for this specific node
     """
-    def __init__(self, controller, primary, address, name):
+    def __init__(self, controller, primary, address, name, zoneId):
         """
         Optional.
         Super runs all the parent class necessities. You do NOT have
@@ -212,7 +230,9 @@ class MyNode(polyinterface.Node):
         :param address: This nodes address
         :param name: This nodes name
         """
-        super(MyNode, self).__init__(controller, primary, address, name)
+        self.zondId = zoneId
+        LOGGER.info('Added Onkyo Zone: {}'.format(name))
+        super(ZoneNode, self).__init__(controller, primary, address, name)
 
     def start(self):
         """
@@ -223,21 +243,41 @@ class MyNode(polyinterface.Node):
         self.setDriver('ST', 1)
         pass
 
-    def setOn(self, command):
+    def _PowerOn(self, command):
         """
         Example command received from ISY.
         Set DON on MyNode.
         Sets the ST (status) driver to 1 or 'True'
         """
+        self.parent.OnkyoReceiver.On(self.zondId)
         self.setDriver('ST', 1)
 
-    def setOff(self, command):
+    def _PowerOff(self, command):
         """
         Example command received from ISY.
         Set DOF on MyNode
         Sets the ST (status) driver to 0 or 'False'
         """
+        self.parent.OnkyoReceiver.Off(self.zondId)
         self.setDriver('ST', 0)
+
+    def _Volume(self, command):
+        try:
+            val = int(command.get('value'))
+        except:
+            LOGGER.error('volume: Invalid argument')
+        else:
+            self.volume = val
+            self.parent.OnkyoReceiver.Set(self.zondId, val)
+            self.setDriver('ST', val)
+
+    def _Mute(self, command):
+        self.mute = True
+        self.parent.OnkyoReceiver.Mute(self.zondId)
+
+    def _UnMute(self, command):
+        self.parent.OnkyoReceiver.UnMute(self.zondId)
+        self.mute = False
 
     def query(self):
         """
@@ -248,7 +288,7 @@ class MyNode(polyinterface.Node):
         self.reportDrivers()
 
 
-    drivers = [{'driver': 'ST', 'value': 0, 'uom': 2}]
+    drivers = [{'driver': 'ST', 'value': 0, 'uom': 51}]
     """
     Optional.
     This is an array of dictionary items containing the variable names(drivers)
@@ -256,13 +296,17 @@ class MyNode(polyinterface.Node):
     of variable to display. Check the UOM's in the WSDK for a complete list.
     UOM 2 is boolean so the ISY will display 'True/False'
     """
-    id = 'mynodetype'
+    id = 'ozone'
     """
     id of the node from the nodedefs.xml that is in the profile.zip. This tells
     the ISY what fields and commands this node has.
     """
     commands = {
-                    'DON': setOn, 'DOF': setOff
+                    'VOLUME': _Volume,
+                    'MUTE': _Mute,
+                    'UNMUTE': _UnMute,
+                    'POWERON': _PowerOn, 
+                    'POWEROF': _PowerOff
                 }
     """
     This is a dictionary of commands. If ISY sends a command to the NodeServer,
@@ -271,7 +315,7 @@ class MyNode(polyinterface.Node):
 
 if __name__ == "__main__":
     try:
-        polyglot = polyinterface.Interface('MyNodeServer')
+        polyglot = polyinterface.Interface('Onkyo')
         """
         Instantiates the Interface to Polyglot.
         """
