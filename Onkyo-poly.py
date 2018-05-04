@@ -77,7 +77,7 @@ class Controller(polyinterface.Controller):
         """
         super(Controller, self).__init__(polyglot)
         self.name = 'Onkyo Controller'
-        self.address = 'TX-NR838'
+        #self.address = 'TX-NR838'
         
 
     def start(self):
@@ -130,8 +130,8 @@ class Controller(polyinterface.Controller):
         controller start method and from DISCOVER command recieved from ISY as an exmaple.
         """
         self.addNode(ZoneNode(self, self.address, 'Main', 'Main', 1))        
-        self.addNode(ZoneNode(self, self.address, 'Zone 2', 'Zone 2', 2))        
-        self.addNode(ZoneNode(self, self.address, 'Zone 3', 'Zone 3', 2))
+        self.addNode(ZoneNode(self, self.address, 'Zone_2', 'Zone 2', 2))        
+        self.addNode(ZoneNode(self, self.address, 'Zone_3', 'Zone 3', 2))
 
     def delete(self):
         """
