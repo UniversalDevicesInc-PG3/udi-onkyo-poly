@@ -92,6 +92,8 @@ class Controller(polyinterface.Controller):
         LOGGER.info('Starting Onkyo Polyglot v2 NodeServer version {}, polyinterface: {}'.format(VERSION, polyinterface.__version__))
         
         self.check_params()
+
+        LOGGER.info('Creating OnkyoReceiver API object with ipaddress={} and port={}'.format(self.ipaddress, self.port))
         self.OnkyoReceiver = OnkyoReceiver(self.ipaddress, self.port)
         self.discover()
 
