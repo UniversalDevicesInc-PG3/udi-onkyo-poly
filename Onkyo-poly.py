@@ -125,9 +125,7 @@ class Controller(polyinterface.Controller):
         controller start method and from DISCOVER command recieved from ISY as an exmaple.
         """
         LOGGER.info('Adding Onkyo Zone Nodes...Main, Zone 2, Zone 3')
-        self.delNode('Main')
-        self.delNode('Zone_2')
-        self.delNode('Zone_3')
+
         self.addNode(ZoneNode(self, self.address, 'Main', 'Main', 1))        
         self.addNode(ZoneNode(self, self.address, 'Zone_2', 'Zone 2', 2))        
         self.addNode(ZoneNode(self, self.address, 'Zone_3', 'Zone 3', 3))
