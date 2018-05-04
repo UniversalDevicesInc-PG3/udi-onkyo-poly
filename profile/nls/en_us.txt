@@ -8,7 +8,7 @@ ST-ctl-ST-NAME = NodeServer Online
 
 # Onkyo Zone
 ND-onkyozone-NAME = Onkyo Zone
-ND-onkyozone-NAME = GenericRsp
+ND-onkyozone-ICON = GenericRsp
 ST-ozone-ST-NAME = Volume
 
 CMD-ozone-VOLUME-NAME = Volume
