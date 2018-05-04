@@ -133,7 +133,7 @@ class Controller(polyinterface.Controller):
         """
         self.addNode(ZoneNode(self, self.address, 'Main', 'Main', 1))        
         self.addNode(ZoneNode(self, self.address, 'Zone_2', 'Zone 2', 2))        
-        self.addNode(ZoneNode(self, self.address, 'Zone_3', 'Zone 3', 2))
+        self.addNode(ZoneNode(self, self.address, 'Zone_3', 'Zone 3', 3))
 
     def delete(self):
         """
