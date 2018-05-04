@@ -126,9 +126,9 @@ class Controller(polyinterface.Controller):
         """
         LOGGER.info('Adding Onkyo Zone Nodes...Main, Zone 2, Zone 3')
 
-        self.addNode(ZoneNode(self, self.address, 'Main', 'Main', 1))        
-        self.addNode(ZoneNode(self, self.address, 'Zone_2', 'Zone 2', 2))        
-        self.addNode(ZoneNode(self, self.address, 'Zone_3', 'Zone 3', 3))
+        self.addNode(ZoneNode(self, self.address, 'main', 'main', 1))        
+        self.addNode(ZoneNode(self, self.address, 'zone2', 'zone2', 2))        
+        self.addNode(ZoneNode(self, self.address, 'zone3', 'zone3', 3))
 
     def delete(self):
         """
