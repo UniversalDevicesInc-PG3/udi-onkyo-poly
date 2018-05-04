@@ -1,2 +1,2 @@
-polyinterface>=2.1.0
+polyinterface>=2.0.25
 requests>=2.0.0
