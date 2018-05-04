@@ -77,7 +77,8 @@ class Controller(polyinterface.Controller):
         """
         super(Controller, self).__init__(polyglot)
         self.name = 'Onkyo Controller'
-        self.OnkyoReceiver = OnkyoReceiver("192.168.1.134", 60128)
+        self.address = 'TX-NR838'
+        
 
     def start(self):
         """
@@ -91,6 +92,7 @@ class Controller(polyinterface.Controller):
         LOGGER.info('Starting Onkyo Polyglot v2 NodeServer version {}, polyinterface: {}'.format(VERSION, polyinterface.__version__))
         
         self.check_params()
+        self.OnkyoReceiver = OnkyoReceiver(self.ipaddress, self.port)
         self.discover()
 
     def shortPoll(self):
@@ -138,7 +140,7 @@ class Controller(polyinterface.Controller):
         co-resident and controlled by Polyglot, it will be terminiated within 5 seconds
         of receiving this message.
         """
-        LOGGER.info('Oh God I\'m being deleted. Nooooooooooooooooooooooooooooooooooooooooo.')
+        LOGGER.info('OMG I\'m being deleted. Nooooooooooooooooooooooooooooooooooooooooo.')
 
     def stop(self):
         LOGGER.debug('NodeServer stopped.')
@@ -147,30 +149,30 @@ class Controller(polyinterface.Controller):
         """
         This is an example if using custom Params for user and password and an example with a Dictionary
         """
-        default_user = "YourUserName"
-        default_password = "YourPassword"
-        if 'user' in self.polyConfig['customParams']:
-            self.user = self.polyConfig['customParams']['user']
+        default_ipaddress = "192.168.1.134"
+        default_port = 60128
+        if 'ipaddress' in self.polyConfig['customParams']:
+            self.ipaddress = self.polyConfig['customParams']['ipaddress']
         else:
-            self.user = default_user
-            LOGGER.error('check_params: user not defined in customParams, please add it.  Using {}'.format(self.user))
+            self.ipaddress = default_ipaddress
+            LOGGER.error('check_params: ipaddress not defined in customParams, please add it.  Using {}'.format(self.ipaddress))
             st = False
 
-        if 'password' in self.polyConfig['customParams']:
-            self.password = self.polyConfig['customParams']['password']
+        if 'port' in self.polyConfig['customParams']:
+            self.port = self.polyConfig['customParams']['port']
         else:
-            self.password = default_password
-            LOGGER.error('check_params: password not defined in customParams, please add it.  Using {}'.format(self.password))
+            self.port = default_port
+            LOGGER.error('check_params: port not defined in customParams, please add it.  Using {}'.format(self.port))
             st = False
 
         # Make sure they are in the params
-        self.addCustomParam({'password': self.password, 'user': self.user, 'some_example': '{ "type": "TheType", "host": "host_or_IP", "port": "port_number" }'})
+        self.addCustomParam({'ipaddress': self.ipaddress, 'port': self.port})
 
         # Remove all existing notices
         self.removeNoticesAll()
         # Add a notice if they need to change the user/password from the default.
-        if self.user == default_user or self.password == default_password:
-            self.addNotice("Please set proper user and password in configuration page, and restart this nodeserver")
+        if self.ipaddress == default_ipaddress:
+            self.addNotice("Please set proper ipaddress and port in configuration page, and restart this nodeserver")
 
     def remove_notices_all(self,command):
         LOGGER.info('remove_notices_all:')
