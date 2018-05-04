@@ -77,7 +77,6 @@ class Controller(polyinterface.Controller):
         """
         super(Controller, self).__init__(polyglot)
         self.name = 'Onkyo Controller'
-        #self.address = 'TX-NR838'
         
 
     def start(self):
@@ -300,7 +299,8 @@ class ZoneNode(polyinterface.Node):
     of variable to display. Check the UOM's in the WSDK for a complete list.
     UOM 2 is boolean so the ISY will display 'True/False'
     """
-    id = 'ozone'
+    id = 'onkyozone'
+
     """
     id of the node from the nodedefs.xml that is in the profile.zip. This tells
     the ISY what fields and commands this node has.
