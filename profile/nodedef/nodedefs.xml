@@ -24,8 +24,9 @@
         <cmds>
             <sends />
             <accepts>
-                <cmd id="VOLUME" />
-                        <p id="" editor="ovolume" init="ST" />
+                <cmd id="VOLUME">
+                       <p id="" editor="ovolume" init="ST" />
+               </cmd>
                 <cmd id="MUTE" />
                 <cmd id="UNMUTE" />
                 <cmd id="POWERON" />
