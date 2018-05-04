@@ -106,13 +106,8 @@ class Controller(polyinterface.Controller):
         pass
 
     def longPoll(self):
-        """
-        Optional.
-        This runs every 30 seconds. You would probably update your nodes either here
-        or shortPoll. No need to Super this method the parent version does nothing.
-        The timer can be overriden in the server.json.
-        """
-        pass
+        for node in self.nodes:
+            self.nodes[node].update()
 
     def query(self):
         """
@@ -130,6 +125,10 @@ class Controller(polyinterface.Controller):
         Do discovery here. Does not have to be called discovery. Called from example
         controller start method and from DISCOVER command recieved from ISY as an exmaple.
         """
+        LOGGER.info('Adding Onkyo Zone Nodes...Main, Zone 2, Zone 3')
+        self.delNode('Main')
+        self.delNode('Zone_2')
+        self.delNode('Zone_3')
         self.addNode(ZoneNode(self, self.address, 'Main', 'Main', 1))        
         self.addNode(ZoneNode(self, self.address, 'Zone_2', 'Zone 2', 2))        
         self.addNode(ZoneNode(self, self.address, 'Zone_3', 'Zone 3', 3))
@@ -290,6 +289,11 @@ class ZoneNode(polyinterface.Node):
         """
         self.reportDrivers()
 
+    def update(self):
+        try:
+            self.setDriver('ST', self.volume)
+        except:
+            LOGGER.error('Error in Node update!')
 
     drivers = [{'driver': 'ST', 'value': 0, 'uom': 51}]
     """
@@ -320,23 +324,9 @@ class ZoneNode(polyinterface.Node):
 if __name__ == "__main__":
     try:
         polyglot = polyinterface.Interface('Onkyo')
-        """
-        Instantiates the Interface to Polyglot.
-        """
         polyglot.start()
-        """
-        Starts MQTT and connects to Polyglot.
-        """
         control = Controller(polyglot)
-        """
-        Creates the Controller Node and passes in the Interface
-        """
         control.runForever()
-        """
-        Sits around and does nothing forever, keeping your program running.
-        """
     except (KeyboardInterrupt, SystemExit):
         sys.exit(0)
-        """
-        Catch SIGTERM or Control-C and exit cleanly.
-        """
+

@@ -5,11 +5,6 @@ import requests
 import socket
 import binascii
 
-_IP = "192.168.1.134"
-_PORT = 60128
-
-
-
 class OnkyoReceiver(object):
     strZonesMute = ["AMT", "ZMT", "MT3"]
     strZonesLevel = ["MVL", "ZVL", "VL3"]
