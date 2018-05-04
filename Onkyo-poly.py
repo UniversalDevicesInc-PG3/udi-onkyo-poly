@@ -124,7 +124,7 @@ class Controller(polyinterface.Controller):
         Do discovery here. Does not have to be called discovery. Called from example
         controller start method and from DISCOVER command recieved from ISY as an exmaple.
         """
-        LOGGER.info('Adding Onkyo Zone Nodes...Main, Zone 2, Zone 3')
+        LOGGER.info('Adding Onkyo Zone Nodes to {}...Main, Zone 2, Zone 3'.format(self.address))
 
         self.addNode(ZoneNode(self, self.address, 'main', 'main', 1))        
         self.addNode(ZoneNode(self, self.address, 'zone2', 'zone2', 2))        
