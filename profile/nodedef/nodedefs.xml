@@ -19,13 +19,15 @@
     <nodeDef id="onkyozone" nls="ozone">
         <editors />
         <sts>
-            <st id="ST" editor="svolume" />
+            <st id="ST" editor="bool" />
+            <st id="SVOL" editor="svolume" />
+            <st id="GV0" editor="bool" />
         </sts>
         <cmds>
             <sends />
             <accepts>
                 <cmd id="VOLUME">
-                       <p id="" editor="svolume" init="ST" />
+                       <p id="" editor="svolume" init="SVOL" />
                </cmd>
                 <cmd id="MUTE" />
                 <cmd id="UNMUTE" />

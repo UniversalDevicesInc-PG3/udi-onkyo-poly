@@ -1,16 +1,15 @@
 # controller
 ND-controller-NAME = Onkyo Controller
 ND-controller-ICON = GenericCtl
-CMD-ctl-DISCOVER-NAME = Re-Discover
-CMD-ctl-UPDATE_PROFILE-NAME = Update Profile
-CMD-ctl-REMOVE_NOTICES_ALL-NAME = Remove Notixes
 ST-ctl-ST-NAME = NodeServer Online
 
 
 # Onkyo Zone
 ND-onkyozone-NAME = Onkyo Zone
 ND-onkyozone-ICON = GenericRsp
+ST-ozone-ST-NAME = Power
 ST-ozone-ST-NAME = Volume
+ST-ozone-ST-NAME = Mute
 
 CMD-ozone-VOLUME-NAME = Volume
 CMD-ozone-MUTE-NAME = Mute
@@ -19,3 +18,6 @@ CMD-ozone-POWERON-NAME = Power On
 CMD-ozone-POWEROFF-NAME = Power Off
 
 
+CONNECTION-0 = Disconnected
+CONNECTION-1 = Connected
+CONNECTION-2 = Failed

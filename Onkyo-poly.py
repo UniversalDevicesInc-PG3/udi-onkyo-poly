@@ -9,254 +9,103 @@ import sys
 import time
 import json
 from onkyoapi import OnkyoReceiver
-import polyinterface
-"""
-Import the polyglot interface module. This is in pypy so you can just install it
-normally. Replace pip with pip3 if you are using python3.
+import udi_interface
 
-Virtualenv:
-pip install polyinterface
+LOGGER = udi_interface.LOGGER
 
-Not Virutalenv:
-pip install polyinterface --user
+VERSION = '1.0.0'
 
-*I recommend you ALWAYS develop your NodeServers in virtualenv to maintain
-cleanliness, however that isn't required. I do not condone installing pip
-modules globally. Use the --user flag, not sudo.
-"""
-
-LOGGER = polyinterface.LOGGER
-
-with open('server.json') as data:
-    SERVERDATA = json.load(data)
-    data.close()
-try:
-    VERSION = SERVERDATA['credits'][0]['version']
-except (KeyError, ValueError):
-    LOGGER.info('Version not found in server.json.')
-    VERSION = '0.0.0'
-"""
-polyinterface has a LOGGER that is created by default and logs to:
-logs/debug.log
-You can use LOGGER.info, LOGGER.warning, LOGGER.debug, LOGGER.error levels as needed.
-"""
-
-class Controller(polyinterface.Controller):
-    """
-    The Controller Class is the primary node from an ISY perspective. It is a Superclass
-    of polyinterface.Node so all methods from polyinterface.Node are available to this
-    class as well.
-
-    Class Variables:
-    self.nodes: Dictionary of nodes. Includes the Controller node. Keys are the node addresses
-    self.name: String name of the node
-    self.address: String Address of Node, must be less than 14 characters (ISY limitation)
-    self.polyConfig: Full JSON config dictionary received from Polyglot for the controller Node
-    self.added: Boolean Confirmed added to ISY as primary node
-    self.config: Dictionary, this node's Config
-
-    Class Methods (not including the Node methods):
-    start(): Once the NodeServer config is received from Polyglot this method is automatically called.
-    addNode(polyinterface.Node, update = False): Adds Node to self.nodes and polyglot/ISY. This is called
-        for you on the controller itself. Update = True overwrites the existing Node data.
-    updateNode(polyinterface.Node): Overwrites the existing node data here and on Polyglot.
-    delNode(address): Deletes a Node from the self.nodes/polyglot and ISY. Address is the Node's Address
-    longPoll(): Runs every longPoll seconds (set initially in the server.json or default 10 seconds)
-    shortPoll(): Runs every shortPoll seconds (set initially in the server.json or default 30 seconds)
-    query(): Queries and reports ALL drivers for ALL nodes to the ISY.
-    getDriver('ST'): gets the current value from Polyglot for driver 'ST' returns a STRING, cast as needed
-    runForever(): Easy way to run forever without maxing your CPU or doing some silly 'time.sleep' nonsense
-                  this joins the underlying queue query thread and just waits for it to terminate
-                  which never happens.
-    """
-    def __init__(self, polyglot):
-        """
-        Optional.
-        Super runs all the parent class necessities. You do NOT have
-        to override the __init__ method, but if you do, you MUST call super.
-        """
-        super(Controller, self).__init__(polyglot)
+class Controller(udi_interface.Node):
+    def __init__(self, polyglot, primary, address, name):
+        super(Controller, self).__init__(polyglot, primary, address, name)
         self.name = 'Onkyo Controller'
+        self.address = address
+        self.poly = polyglot
+        self.ipaddress = ''
+        self.port = 60128
+        self.configured = False
         
+        polyglot.subscribe(polyglot.START, self.start, address)
+        polyglot.subscribe(polyglot.CUSTOMPARAMS, self.parameterHandler)
+
+        polyglot.ready()
+        polyglot.addNode(self, conn_status="ST")
+
+    def parameterHandler(self, params):
+        valid = True
+        self.poly.Notices.clear()
+
+        if 'ipaddress' in params and params['ipaddress'] != '':
+            self.ipaddress = params['ipaddress']
+        else:
+            valid = False
+            self.poly.Notices['ip'] = "Please enter the IP address of the Onkyo receiver."
+
+        if 'port' in params and params['port'] != '':
+            self.port = int(params['port'])
+        else:
+            valid = False
+            self.poly.Notices['port'] = "Please enter the port for the Onkyo receiver."
+
+        if valid:
+            self.discover()
+            self.configured = True
+            
 
     def start(self):
-        """
-        Optional.
-        Polyglot v2 Interface startup done. Here is where you start your integration.
-        This will run, once the NodeServer connects to Polyglot and gets it's config.
-        In this example I am calling a discovery method. While this is optional,
-        this is where you should start. No need to Super this method, the parent
-        version does nothing.
-        """
-        LOGGER.info('Starting Onkyo Polyglot v2 NodeServer version {}, polyinterface: {}'.format(VERSION, polyinterface.__version__))
+        LOGGER.info('Starting Onkyo Polyglot v2 NodeServer version {}, udi_interface: {}'.format(VERSION, udi_interface.__version__))
         
-        self.check_params()
-
+        while not self.configured:
+            time.sleep(1)
+            
         LOGGER.info('Creating OnkyoReceiver API object with ipaddress={} and port={}'.format(self.ipaddress, self.port))
         self.OnkyoReceiver = OnkyoReceiver(self.ipaddress, self.port)
-        self.discover()
-
-    def shortPoll(self):
-        """
-        Optional.
-        This runs every 10 seconds. You would probably update your nodes either here
-        or longPoll. No need to Super this method the parent version does nothing.
-        The timer can be overriden in the server.json.
-        """
-        pass
-
-    def longPoll(self):
-        pass
 
     def query(self):
-        """
-        Optional.
-        By default a query to the control node reports the FULL driver set for ALL
-        nodes back to ISY. If you override this method you will need to Super or
-        issue a reportDrivers() to each node manually.
-        """
-        for node in self.nodes:
-            self.nodes[node].reportDrivers()
+        self.reportDrivers()
 
     def discover(self, *args, **kwargs):
-        """
-        Example
-        Do discovery here. Does not have to be called discovery. Called from example
-        controller start method and from DISCOVER command recieved from ISY as an exmaple.
-        """
         LOGGER.info('Adding Onkyo Zone Nodes to {}...Main, Zone 2, Zone 3'.format(self.address))
 
-        self.addNode(ZoneNode(self, self.address, 'main', 'main', 1))        
-        self.addNode(ZoneNode(self, self.address, 'zone2', 'zone2', 2))        
-        self.addNode(ZoneNode(self, self.address, 'zone3', 'zone3', 3))
+        if not self.getNode('main'):
+            self.poly.addNode(ZoneNode(self.poly, self.address, 'main', 'main', 1))        
+        if not self.getNode('zone2'):
+            self.poly.addNode(ZoneNode(self.poly, self.address, 'zone2', 'zone2', 2))        
+        if not self.getNode('zone3'):
+            self.poly.addNode(ZoneNode(self.poly, self.address, 'zone3', 'zone3', 3))
 
     def delete(self):
-        """
-        Example
-        This is sent by Polyglot upon deletion of the NodeServer. If the process is
-        co-resident and controlled by Polyglot, it will be terminiated within 5 seconds
-        of receiving this message.
-        """
-        LOGGER.info('OMG I\'m being deleted. Nooooooooooooooooooooooooooooooooooooooooo.')
+        LOGGER.info('Node server deleted')
 
     def stop(self):
-        LOGGER.debug('NodeServer stopped.')
+        LOGGER.debug('Node Server stopped.')
 
-    def check_params(self):
-        """
-        This is an example if using custom Params for user and password and an example with a Dictionary
-        """
-        default_ipaddress = "192.168.1.134"
-        default_port = 60128
-        if 'ipaddress' in self.polyConfig['customParams']:
-            self.ipaddress = self.polyConfig['customParams']['ipaddress']
-        else:
-            self.ipaddress = default_ipaddress
-            LOGGER.error('check_params: ipaddress not defined in customParams, please add it.  Using {}'.format(self.ipaddress))
-            st = False
-
-        if 'port' in self.polyConfig['customParams']:
-            self.port = self.polyConfig['customParams']['port']
-        else:
-            self.port = default_port
-            LOGGER.error('check_params: port not defined in customParams, please add it.  Using {}'.format(self.port))
-            st = False
-
-        # Make sure they are in the params
-        self.addCustomParam({'ipaddress': self.ipaddress, 'port': self.port})
-
-        # Remove all existing notices
-        self.removeNoticesAll()
-        # Add a notice if they need to change the user/password from the default.
-        if self.ipaddress == default_ipaddress:
-            self.addNotice("Please set proper ipaddress and port in configuration page, and restart this nodeserver")
-
-    def remove_notices_all(self,command):
-        LOGGER.info('remove_notices_all:')
-        # Remove all existing notices
-        self.removeNoticesAll()
-
-    def update_profile(self,command):
-        LOGGER.info('update_profile:')
-        st = self.poly.installprofile()
-        return st
-
-    """
-    Optional.
-    Since the controller is the parent node in ISY, it will actual show up as a node.
-    So it needs to know the drivers and what id it will use. The drivers are
-    the defaults in the parent Class, so you don't need them unless you want to add to
-    them. The ST and GV1 variables are for reporting status through Polyglot to ISY,
-    DO NOT remove them. UOM 2 is boolean.
-    """
     id = 'controller'
-    commands = {
-        'DISCOVER': discover,
-        'UPDATE_PROFILE': update_profile,
-        'REMOVE_NOTICES_ALL': remove_notices_all
-    }
-    drivers = [{'driver': 'ST', 'value': 0, 'uom': 2}]
+    commands = { }
+    drivers = [{'driver': 'ST', 'value': 0, 'uom': 25}]
 
 
 
-class ZoneNode(polyinterface.Node):
-    """
-    This is the class that all the Nodes will be represented by. You will add this to
-    Polyglot/ISY with the controller.addNode method.
-
-    Class Variables:
-    self.primary: String address of the Controller node.
-    self.parent: Easy access to the Controller Class from the node itself.
-    self.address: String address of this Node 14 character limit. (ISY limitation)
-    self.added: Boolean Confirmed added to ISY
-
-    Class Methods:
-    start(): This method is called once polyglot confirms the node is added to ISY.
-    setDriver('ST', 1, report = True, force = False):
-        This sets the driver 'ST' to 1. If report is False we do not report it to
-        Polyglot/ISY. If force is True, we send a report even if the value hasn't changed.
-    reportDrivers(): Forces a full update of all drivers to Polyglot/ISY.
-    query(): Called when ISY sends a query request to Polyglot for this specific node
-    """
+class ZoneNode(udi_interface.Node):
     def __init__(self, controller, primary, address, name, zoneId):
-        """
-        Optional.
-        Super runs all the parent class necessities. You do NOT have
-        to override the __init__ method, but if you do, you MUST call super.
 
+        """
         :param controller: Reference to the Controller class
         :param primary: Controller address
         :param address: This nodes address
         :param name: This nodes name
         """
+
         self.zondId = zoneId
         LOGGER.info('Added Onkyo Zone: {}'.format(name))
         super(ZoneNode, self).__init__(controller, primary, address, name)
 
-    def start(self):
-        """
-        Optional.
-        This method is run once the Node is successfully added to the ISY
-        and we get a return result from Polyglot. Only happens once.
-        """
-        self.setDriver('ST', 1)
-        pass
 
     def _PowerOn(self, command):
-        """
-        Example command received from ISY.
-        Set DON on MyNode.
-        Sets the ST (status) driver to 1 or 'True'
-        """
         self.parent.OnkyoReceiver.On(self.zondId)
         self.setDriver('ST', 1)
 
     def _PowerOff(self, command):
-        """
-        Example command received from ISY.
-        Set DOF on MyNode
-        Sets the ST (status) driver to 0 or 'False'
-        """
         self.parent.OnkyoReceiver.Off(self.zondId)
         self.setDriver('ST', 0)
 
@@ -268,44 +117,28 @@ class ZoneNode(polyinterface.Node):
         else:
             self.volume = val
             self.parent.OnkyoReceiver.Set(self.zondId, val)
-            self.setDriver('ST', val)
+            self.setDriver('SVOL', val)
 
     def _Mute(self, command):
         self.mute = True
         self.parent.OnkyoReceiver.Mute(self.zondId)
+        self.setDriver('GV0', 1)
 
     def _UnMute(self, command):
         self.parent.OnkyoReceiver.UnMute(self.zondId)
         self.mute = False
+        self.setDriver('GV0', 0)
 
     def query(self):
-        """
-        Called by ISY to report all drivers for this node. This is done in
-        the parent class, so you don't need to override this method unless
-        there is a need.
-        """
         self.reportDrivers()
 
-    def update(self):
-        try:
-            self.setDriver('ST', self.volume)
-        except:
-            LOGGER.error('Error in Node update!')
-
-    drivers = [{'driver': 'ST', 'value': 0, 'uom': 51}]
-    """
-    Optional.
-    This is an array of dictionary items containing the variable names(drivers)
-    values and uoms(units of measure) from ISY. This is how ISY knows what kind
-    of variable to display. Check the UOM's in the WSDK for a complete list.
-    UOM 2 is boolean so the ISY will display 'True/False'
-    """
+    drivers = [
+            {'driver': 'ST', 'value': 0, 'uom': 2},  # zone On/off
+            {'driver': 'SVOL', 'value': 0, 'uom': 51},  # zone volume
+            {'driver': 'GV0', 'value': 0, 'uom': 2}  # zone mute state
+            ]
     id = 'onkyozone'
 
-    """
-    id of the node from the nodedefs.xml that is in the profile.zip. This tells
-    the ISY what fields and commands this node has.
-    """
     commands = {
                     'VOLUME': _Volume,
                     'MUTE': _Mute,
@@ -313,17 +146,13 @@ class ZoneNode(polyinterface.Node):
                     'POWERON': _PowerOn, 
                     'POWEROF': _PowerOff
                 }
-    """
-    This is a dictionary of commands. If ISY sends a command to the NodeServer,
-    this tells it which method to call. DON calls setOn, etc.
-    """
 
 if __name__ == "__main__":
     try:
-        polyglot = polyinterface.Interface('Onkyo')
-        polyglot.start()
-        control = Controller(polyglot)
-        control.runForever()
+        polyglot = udi_interface.Interface([])
+        polyglot.start(VERSION)
+        Controller(polyglot, 'controller', 'controller', 'Onkyo')
+        polyglot.runForever()
     except (KeyboardInterrupt, SystemExit):
         sys.exit(0)
 

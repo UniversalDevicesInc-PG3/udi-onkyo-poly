@@ -1,6 +1,6 @@
 {
     "name": "Onkyo",
-    "docs": "https://github.com/steveng57/Onkyo-Polyglotv2",
+    "docs": "https://github.com/UniversalDevicesInc-PG3/udi-onkyo-poly",
     "type": "python",
     "executable": "Onkyo-poly.py",
     "install": "install.sh",
@@ -14,8 +14,8 @@
             "author": "Steven Goulet",
             "version": "0.5.10",
             "date": "May 3, 2018",
-            "source": "https://github.com/steveng57/Onkyo-Polyglotv2",
-            "license": "https://raw.githubusercontent.com/steveng57/Onkyo-Polyglotv2/master/LICENSE"
+            "source": "https://github.com/UniversalDevicesInc-PG3/udi-onkyo-poly",
+            "license": "https://raw.githubusercontent.com/UniversalDevicesInc-PG3/udi-onkyo-poly/master/LICENSE"
         }
     ]
 }
