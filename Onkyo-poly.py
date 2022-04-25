@@ -54,6 +54,7 @@ class Controller(udi_interface.Node):
 
     def start(self):
         LOGGER.info('Starting Onkyo Polyglot v2 NodeServer version {}, udi_interface: {}'.format(VERSION, udi_interface.__version__))
+        self.poly.updateProfile()
         
         while not self.configured:
             time.sleep(1)
@@ -67,11 +68,11 @@ class Controller(udi_interface.Node):
     def discover(self, *args, **kwargs):
         LOGGER.info('Adding Onkyo Zone Nodes to {}...Main, Zone 2, Zone 3'.format(self.address))
 
-        if not self.getNode('main'):
+        if not self.poly.getNode('main'):
             self.poly.addNode(ZoneNode(self.poly, self.address, 'main', 'main', 1))        
-        if not self.getNode('zone2'):
+        if not self.poly.getNode('zone2'):
             self.poly.addNode(ZoneNode(self.poly, self.address, 'zone2', 'zone2', 2))        
-        if not self.getNode('zone3'):
+        if not self.poly.getNode('zone3'):
             self.poly.addNode(ZoneNode(self.poly, self.address, 'zone3', 'zone3', 3))
 
     def delete(self):

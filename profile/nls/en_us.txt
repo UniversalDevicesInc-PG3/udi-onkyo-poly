@@ -8,8 +8,8 @@ ST-ctl-ST-NAME = NodeServer Online
 ND-onkyozone-NAME = Onkyo Zone
 ND-onkyozone-ICON = GenericRsp
 ST-ozone-ST-NAME = Power
-ST-ozone-ST-NAME = Volume
-ST-ozone-ST-NAME = Mute
+ST-ozone-SVOL-NAME = Volume
+ST-ozone-GV0-NAME = Mute
 
 CMD-ozone-VOLUME-NAME = Volume
 CMD-ozone-MUTE-NAME = Mute
