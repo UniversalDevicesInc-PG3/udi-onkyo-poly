@@ -12,8 +12,8 @@
         {
             "title": "Onkyo: a NodeServer for Onkyo Receiver Integration",
             "author": "Steven Goulet",
-            "version": "0.5.10",
-            "date": "May 3, 2018",
+            "version": "1.0.0",
+            "date": "April 25, 2022",
             "source": "https://github.com/UniversalDevicesInc-PG3/udi-onkyo-poly",
             "license": "https://raw.githubusercontent.com/UniversalDevicesInc-PG3/udi-onkyo-poly/master/LICENSE"
         }
