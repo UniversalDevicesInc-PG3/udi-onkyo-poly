@@ -15,7 +15,7 @@ CMD-ozone-VOLUME-NAME = Volume
 CMD-ozone-MUTE-NAME = Mute
 CMD-ozone-UNMUTE-NAME = UnMute
 CMD-ozone-POWERON-NAME = Power On
-CMD-ozone-POWEROFF-NAME = Power Off
+CMD-ozone-POWEROF-NAME = Power Off
 
 
 CONNECTION-0 = Disconnected

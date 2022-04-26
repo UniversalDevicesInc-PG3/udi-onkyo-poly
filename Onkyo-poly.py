@@ -13,7 +13,7 @@ import udi_interface
 
 LOGGER = udi_interface.LOGGER
 
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 class Controller(udi_interface.Node):
     def __init__(self, polyglot, primary, address, name):
