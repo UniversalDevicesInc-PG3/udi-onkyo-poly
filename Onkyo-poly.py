@@ -13,7 +13,7 @@ import udi_interface
 
 LOGGER = udi_interface.LOGGER
 
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 class Controller(udi_interface.Node):
     def __init__(self, polyglot, primary, address, name):
@@ -88,18 +88,13 @@ class Controller(udi_interface.Node):
 
 
 class ZoneNode(udi_interface.Node):
-    def __init__(self, controller, primary, address, name, zoneId):
+    def __init__(self, polyglot, primary, address, name, zoneId):
 
-        """
-        :param controller: Reference to the Controller class
-        :param primary: Controller address
-        :param address: This nodes address
-        :param name: This nodes name
-        """
+        self.parent = polyglot.getNode(primary)
 
         self.zondId = zoneId
         LOGGER.info('Added Onkyo Zone: {}'.format(name))
-        super(ZoneNode, self).__init__(controller, primary, address, name)
+        super(ZoneNode, self).__init__(polyglot, primary, address, name)
 
 
     def _PowerOn(self, command):

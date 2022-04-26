@@ -29,7 +29,7 @@
                 <cmd id="MUTE" />
                 <cmd id="UNMUTE" />
                 <cmd id="POWERON" />
-                <cmd id="POWEROFF" />
+                <cmd id="POWEROF" />
                 
                 
             </accepts>
